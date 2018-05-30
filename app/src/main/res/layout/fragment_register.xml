@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fitsSystemWindows="true"
+    tools:layout_editor_absoluteY="81dp">
+
+    <EditText
+        android:id="@+id/tel-et"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:hint="TEL"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/submitBtn"
+        app:layout_constraintEnd_toEndOf="@+id/submitBtn"
+        app:layout_constraintStart_toStartOf="@+id/submitBtn"
+        app:layout_constraintTop_toBottomOf="@+id/email-et2" />
+
+    <EditText
+        android:id="@+id/email-et2"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:hint="EMAIL"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/tel-et"
+        app:layout_constraintEnd_toEndOf="@+id/tel-et"
+        app:layout_constraintStart_toStartOf="@+id/tel-et"
+        app:layout_constraintTop_toBottomOf="@+id/name_et" />
+
+    <EditText
+        android:id="@+id/name_et"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="NAME"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/email-et2"
+        app:layout_constraintEnd_toEndOf="@+id/email-et2"
+        app:layout_constraintStart_toStartOf="@+id/email-et2"
+        app:layout_constraintTop_toBottomOf="@+id/password_et" />
+
+    <EditText
+        android:id="@+id/username_et"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="USERNAME"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/password_et"
+        app:layout_constraintEnd_toEndOf="@+id/password_et"
+        app:layout_constraintStart_toStartOf="@+id/password_et"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/password_et"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="PASSWORD"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/name_et"
+        app:layout_constraintEnd_toEndOf="@+id/name_et"
+        app:layout_constraintStart_toStartOf="@+id/name_et"
+        app:layout_constraintTop_toBottomOf="@+id/username_et" />
+
+    <Button
+        android:id="@+id/submitBtn"
+        android:layout_width="384dp"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tel-et" />
+</android.support.constraint.ConstraintLayout>
