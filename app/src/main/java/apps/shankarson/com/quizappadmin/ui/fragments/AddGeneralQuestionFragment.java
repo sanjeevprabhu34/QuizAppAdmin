@@ -36,6 +36,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import apps.shankarson.com.quizappadmin.R;
 import apps.shankarson.com.quizappadmin.model.GeneralQuestionOptionObj;
@@ -66,7 +68,11 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //init();
+        try {
+            init();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
        /* String timeStr = "26/05/2018 14:20";
         String format = "dd/mm/yyyy hh:mm";
@@ -174,9 +180,10 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             }
         });
 
-        //getUsers();
-
         assembleSingleQuestionJsonObj();
+
+
+
     }
 
     private void assembleSingleQuestionJsonObj() throws JSONException {
@@ -189,18 +196,28 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         JSONObject option3 = new JSONObject();
         option3.put("answer", "option3");
 
+        optionsJsonArray.put(option1);
+        optionsJsonArray.put(option2);
+        optionsJsonArray.put(option3);
+
         singleQuestionJsonObj = new JSONObject();
         singleQuestionJsonObj.put("Question", Question);
         singleQuestionJsonObj.put("optionList", optionsJsonArray);
         singleQuestionJsonObj.put("startDate", "30/05/2018 10:00");
         singleQuestionJsonObj.put("endDate", "30/05/2018 10:00");
 
+        Log.e("JsonObjectTest", singleQuestionJsonObj.toString());
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("mockJson", singleQuestionJsonObj.toString());
+        SendMockData(params);
+
     }
 
-    private void getUsers(){
+    private void SendMockData(final HashMap<String, String> params){
         RequestQueue mRequestQueue = Volley.newRequestQueue(getActivity());
 
-        String url = "http://10.0.2.2:4466/sanjeev/work/clients/Shankar_Iyer/QuizzApp/getUsers.php";
+        String url = "http://10.0.2.2:4466/sanjeev/work/clients/Shankar_Iyer/QuizzApp/AddGeneralQuestion.php";
 
         //String Request initialized
 
@@ -211,43 +228,7 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             public void onResponse(String response) {
 
                 // Toast.makeText(getApplicationContext(),"Response :" + response.toString(), Toast.LENGTH_LONG).show();
-                //.e("message", ""+response.toString());
-                ArrayList<User> userList = new ArrayList<>();
-                try {
-                    JSONObject jsonObject = new JSONObject(response.toString());
-                    JSONArray jsonArray = new JSONArray(jsonObject.get("content").toString());
-
-
-                    for(int i=0;i<jsonArray.length();i++){
-                        User user = new User();
-                        JSONObject userObj = (JSONObject) jsonArray.get(i);
-                        user.setName(userObj.get("name").toString());
-
-                        Log.e("users", userObj.get("ID") + " " + userObj.get("name"));
-
-                        userList.add(user);
-
-                    }
-
-                    Log.e("message", ""+jsonArray.length());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-
-                    RecyclerView recyclerView = getActivity().findViewById(R.id.view_users_rv);
-                    RecyclerView.LayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-                    recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-                    recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-
-                    ViewUsersAdapter recyclerAdapter = new ViewUsersAdapter(userList);
-
-                    recyclerView.setAdapter(recyclerAdapter);
-                    recyclerView.setLayoutManager(linearLayoutManager);
-                    recyclerAdapter.notifyDataSetChanged();
-
+                Log.e("message", ""+response.toString());
 
             }
         }, new Response.ErrorListener() {
@@ -256,7 +237,13 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
 
                 Log.e("An","Error :" + error.toString());
             }
-        });
+        }){
+            @Override
+            protected Map<String, String> getParams()
+            {
+                return params;
+            }
+        };
 
         mRequestQueue.add(mStringRequest);
     }
