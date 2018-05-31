@@ -35,11 +35,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import apps.shankarson.com.quizappadmin.R;
+import apps.shankarson.com.quizappadmin.Utilities.DateUtilities;
 import apps.shankarson.com.quizappadmin.model.GeneralQuestionOptionObj;
 import apps.shankarson.com.quizappadmin.ui.StandaloneViews.AddOptionView;
 import apps.shankarson.com.quizappadmin.model.GeneralQuestionObj;
@@ -187,30 +189,54 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     }
 
     private void assembleSingleQuestionJsonObj() throws JSONException {
-        String Question = "Sample Question";
+        String Question = "What is the  Capital Of India";
         JSONArray optionsJsonArray = new JSONArray();
-        JSONObject option1 = new JSONObject();
+       /* JSONObject option1 = new JSONObject();
         option1.put("answer", "option1");
         JSONObject option2 = new JSONObject();
         option2.put("answer", "option2");
         JSONObject option3 = new JSONObject();
-        option3.put("answer", "option3");
+        option3.put("answer", "option3");*/
 
-        optionsJsonArray.put(option1);
-        optionsJsonArray.put(option2);
-        optionsJsonArray.put(option3);
+       JSONObject option1Obj = new JSONObject();
+        option1Obj.put("optionname", "Mumbai" );
+        option1Obj.put("iscorrect", false );
+        option1Obj.put("priority", 0 );
+        optionsJsonArray.put(option1Obj);
+        JSONObject option2Obj = new JSONObject();
+        option2Obj.put("optionname", "Banglore" );
+        option2Obj.put("iscorrect", false );
+        option2Obj.put("priority", 0 );
+        optionsJsonArray.put(option2Obj);
+        JSONObject option3Obj = new JSONObject();
+        option3Obj.put("optionname", "Delhi" );
+        option3Obj.put("iscorrect", true );
+        option3Obj.put("priority", 100 );
+        optionsJsonArray.put(option3Obj);
 
         singleQuestionJsonObj = new JSONObject();
         singleQuestionJsonObj.put("Question", Question);
         singleQuestionJsonObj.put("optionList", optionsJsonArray);
-        singleQuestionJsonObj.put("startDate", "30/05/2018 10:00");
-        singleQuestionJsonObj.put("endDate", "30/05/2018 10:00");
+        try {
+            singleQuestionJsonObj.put("startDate", DateUtilities.StringTimeToDate("30/05/2018 10:00", "dd/MM/yyyy hh:mm"));
+            singleQuestionJsonObj.put("endDate", DateUtilities.StringTimeToDate("30/05/2018 10:00", "dd/MM/yyyy hh:mm"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
         Log.e("JsonObjectTest", singleQuestionJsonObj.toString());
 
         HashMap<String, String> params = new HashMap<>();
         params.put("mockJson", singleQuestionJsonObj.toString());
         SendMockData(params);
+
+        try {
+            DateUtilities.StringTimeToDate("30/05/2018 10:20", "dd/MM/yyyy hh:mm");
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
     }
 
