@@ -111,55 +111,10 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
                 String optionTextStr = optionText.getText().toString();
                 boolean isCorrect = true;
                 float percentage  = 100;
-                generalQuestionObj.checkForOptionCompleted(optionTextStr, isCorrectOption, percentage);
-
-
-            }
-        });
-
-        correctAnswerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                isCorrectOption = isChecked;
-
-            }
-        });
-
-        generalQuestionObj = new GeneralQuestionObj(this);
-
-
-        questionEt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                generalQuestionObj.setQuestion(s.toString());
-                Log.e("editing", "It is editing "  +generalQuestionObj.getQuestion());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        startTimeEt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                generalQuestionObj.setStartDateStr(s.toString());
+                long startTime = Long.parseLong(startTimeEt.getText().toString());
+                long endTime = Long.parseLong(endTimeEt.getText().toString());
+                generalQuestionObj.setStartDateStr(startTime);
+                generalQuestionObj.setEndDateStr(endTime);
                 Log.e("editing", "start time is "  +generalQuestionObj.getStartDateStr());
             }
         });
@@ -177,26 +132,17 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
 
             @Override
             public void afterTextChanged(Editable s) {
-                generalQuestionObj.setEndDateStr(s.toString());
+                generalQuestionObj.setEndDateStr(Long.parseLong(s.toString()));
                 Log.e("editing", "end time is "  +generalQuestionObj.getEndDateStr());
             }
         });
 
-        assembleSingleQuestionJsonObj();
-
-
-
+       //assembleSingleQuestionJsonObj(generalQuestionObj);
     }
 
-    private void assembleSingleQuestionJsonObj() throws JSONException {
+    private void assembleSingleQuestionJsonObj(GeneralQuestionObj generalQuestionObj) throws JSONException {
         String Question = "What is the  Capital Of India";
         JSONArray optionsJsonArray = new JSONArray();
-       /* JSONObject option1 = new JSONObject();
-        option1.put("answer", "option1");
-        JSONObject option2 = new JSONObject();
-        option2.put("answer", "option2");
-        JSONObject option3 = new JSONObject();
-        option3.put("answer", "option3");*/
 
        JSONObject option1Obj = new JSONObject();
         option1Obj.put("optionname", "Mumbai" );
@@ -227,9 +173,11 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
 
         Log.e("JsonObjectTest", singleQuestionJsonObj.toString());
 
+
+
         HashMap<String, String> params = new HashMap<>();
         params.put("mockJson", singleQuestionJsonObj.toString());
-        SendMockData(params);
+
 
         try {
             DateUtilities.StringTimeToDate("30/05/2018 10:20", "dd/MM/yyyy hh:mm");
@@ -237,6 +185,8 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        SendMockData(params);
 
     }
 
@@ -307,6 +257,12 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     @Override
     public void questionCompleted() {
         Log.e("Question", "Adding Question to Server Database ");
+        try {
+            assembleSingleQuestionJsonObj(generalQuestionObj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

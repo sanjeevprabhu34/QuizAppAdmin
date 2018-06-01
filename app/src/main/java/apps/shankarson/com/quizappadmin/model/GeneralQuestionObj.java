@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class GeneralQuestionObj {
     private String question;
     private ArrayList<GeneralQuestionOptionObj> optionList = new ArrayList<>();
-    private String startDateStr;
-    private String endDateStr;
+    private long startDateStr;
+    private long endDateStr;
     private Interactor interactor;
     private float optionPercentage = 0;
 
@@ -44,27 +44,28 @@ public class GeneralQuestionObj {
         this.optionList = optionList;
     }
 
-    public String getStartDateStr() {
+    public long getStartDateStr() {
         return startDateStr;
     }
 
-    public void setStartDateStr(String startDateStr) {
+    public void setStartDateStr(long startDateStr) {
         this.startDateStr = startDateStr;
     }
 
-    public String getEndDateStr() {
+    public long getEndDateStr() {
         return endDateStr;
     }
 
-    public void setEndDateStr(String endDateStr) {
+    public void setEndDateStr(long endDateStr) {
         this.endDateStr = endDateStr;
     }
 
-    public void checkForOptionCompleted(String optionText, boolean isCorrect,  float priorityPer ){
+    public void checkForOptionCompleted(String optionText, boolean isCorrect,  float priorityPer, long startTime, long endTime ){
+        GeneralQuestionOptionObj generalQuestionOptionObj = null;
           if(optionText.length() <= 0){
             interactor.optionTextNotComplete();
         }else if (isCorrect) {
-              GeneralQuestionOptionObj generalQuestionOptionObj = new GeneralQuestionOptionObj();
+              generalQuestionOptionObj = new GeneralQuestionOptionObj();
               generalQuestionOptionObj.setOptionText(optionText);
               generalQuestionOptionObj.setOptionTheCorrectAnswer(isCorrect);
               generalQuestionOptionObj.setOptionPriorityInPercentage(priorityPer);
@@ -77,30 +78,29 @@ public class GeneralQuestionObj {
             }
 
         } else if (!isCorrect) {
-            GeneralQuestionOptionObj generalQuestionOptionObj = new GeneralQuestionOptionObj();
+              generalQuestionOptionObj = new GeneralQuestionOptionObj();
             generalQuestionOptionObj.setOptionText(optionText);
             generalQuestionOptionObj.setOptionTheCorrectAnswer(isCorrect);
             optionList.add(generalQuestionOptionObj);
               interactor.optionTextComplete(generalQuestionOptionObj);
-
-
-        }
+        }else if(startTime >= 0 && endTime >= 0){
+              setStartDateStr(startTime);
+              setEndDateStr(endTime);
+          }else{
+              interactor.optionTextComplete(generalQuestionOptionObj);
+          }
     }
 
     public void IsQuestionSetCompleted(){
-        if(question.length() < 10){
+        /*if(question.length() < 10){
             interactor.questionNotCompleted("Please Enter Question Correctly");
-        } else if(startDateStr.length() < 10){
-            interactor.questionNotCompleted("Please Enter Start Date Correctly");
-        } else if(endDateStr.length() < 10){
-            interactor.questionNotCompleted("Please Enter End Date Correctly");
-        } else{
-             if(optionPercentage >= 100){
+        }  else if(optionPercentage >= 100){
                  interactor.questionCompleted();
-            }else{
+         }else{
                  //interactor.questionNotCompleted("Question Priority Not Completed to 100%");
                  interactor.optionCorrectPriorityRemaining();
-             }
-        }
-    }
+         }*/
+
+        interactor.questionCompleted();
+   }
 }
