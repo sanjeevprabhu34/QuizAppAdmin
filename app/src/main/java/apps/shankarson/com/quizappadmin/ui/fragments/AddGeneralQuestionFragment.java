@@ -100,7 +100,6 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 generalQuestionObj.IsQuestionSetCompleted();
             }
         });
@@ -154,6 +153,23 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 isCorrectOption = isChecked;
+            }
+        });
+
+        questionEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                generalQuestionObj.setQuestion(s.toString());
             }
         });
 

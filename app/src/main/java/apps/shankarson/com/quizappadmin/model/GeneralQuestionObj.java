@@ -97,7 +97,7 @@ public class GeneralQuestionObj {
 
     public void IsQuestionSetCompleted(){
         question = getQuestion();
-        if(question == null || question.length() <= 5){
+        if(question == null ){
             interactor.questionNotCompleted("Please Enter Question Correctly");
 
         } else if(optionPercentage < 100){
