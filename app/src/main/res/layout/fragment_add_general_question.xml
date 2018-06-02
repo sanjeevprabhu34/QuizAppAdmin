@@ -17,7 +17,7 @@
             android:layout_marginTop="9dp"
             android:ems="10"
             android:hint="Start Typing"
-            android:inputType="textPersonName|number"
+            android:inputType="number|numberDecimal"
             android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@+id/optionPercentageRemaining"
             app:layout_constraintEnd_toEndOf="parent"

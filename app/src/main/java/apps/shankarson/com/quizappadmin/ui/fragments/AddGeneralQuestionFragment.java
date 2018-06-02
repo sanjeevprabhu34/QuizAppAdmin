@@ -51,6 +51,7 @@ import apps.shankarson.com.quizappadmin.ui.adapters.ViewUsersAdapter;
 public class AddGeneralQuestionFragment extends Fragment implements GeneralQuestionObj.Interactor {
     private GeneralQuestionObj generalQuestionObj;
     private TextView percentageRemainignTv;
+    private EditText optionPriorityPercentageTv;
     private EditText questionEt ;
     private EditText startTimeEt;
     private EditText endTimeEt ;
@@ -94,6 +95,7 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         optionText = getActivity().findViewById(R.id.optionTextEt);
 
         percentageRemainignTv = getActivity().findViewById(R.id.optionPercentageRemaining);
+        optionPriorityPercentageTv = getActivity().findViewById(R.id.optionPriority);
         correctAnswerSwitch = getActivity().findViewById(R.id.optionSwitch);
         doneBtn = getActivity().findViewById(R.id.done_btn);
 
@@ -111,9 +113,7 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             public void onClick(View v) {
 
                 String optionTextStr = optionText.getText().toString();
-                boolean isCorrect = true;
-                float percentage  = 100;
-                long startTime = 0;
+               /* long startTime = 0;
                 long endTime = 0;
                 try {
                     startTime = DateUtilities.StringTimeToDate(startTimeEt.getText().toString(), "dd/mm/yyyy");
@@ -122,16 +122,22 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
                     e.printStackTrace();
                 }
 
-                generalQuestionObj.setStartDateStr(startTime);
-                generalQuestionObj.setEndDateStr(endTime);
+
                 Log.e("editing", "start time is "  +generalQuestionObj.getStartDateStr());
 
 
-                generalQuestionObj.checkForOptionCompleted(optionTextStr, isCorrectOption, percentage, startTime, endTime);
+                */
+               String optionPercentageText = optionPriorityPercentageTv.getText().toString();
+               if(optionPercentageText.length() == 0){
+                   optionPercentageText = "0";
+               }
+
+                generalQuestionObj.checkForOptionCompleted(optionTextStr, isCorrectOption, Float.parseFloat(optionPercentageText));
             }
         });
 
         endTimeEt.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -144,8 +150,35 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
 
             @Override
             public void afterTextChanged(Editable s) {
-                generalQuestionObj.setEndDateStr(Long.parseLong(s.toString()));
+                try {
+                    generalQuestionObj.setEndDateStr(DateUtilities.StringTimeToDate(s.toString(),"dd/mm/yyyy"));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 Log.e("editing", "end time is "  +generalQuestionObj.getEndDateStr());
+            }
+        });
+
+        startTimeEt.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    generalQuestionObj.setStartDateStr(DateUtilities.StringTimeToDate(s.toString(),"dd/mm/yyyy"));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Log.e("editing", "start time is "  +generalQuestionObj.getStartDateStr());
             }
         });
 
@@ -176,58 +209,14 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         //assembleSingleQuestionJsonObj(generalQuestionObj);
     }
 
+    private void resetAllOptionFields(){
+        optionText.setText(null);
+        correctAnswerSwitch.setChecked(false);
+    }
+
     private void assembleSingleQuestionJsonObj(GeneralQuestionObj generalQuestionObj) throws JSONException {
-        String Question = "What is the  Capital Of India";
+        String Question = generalQuestionObj.getQuestion();
         JSONArray optionsJsonArray = new JSONArray();
-
-      /* JSONObject option1Obj = new JSONObject();
-        option1Obj.put("optionname", "Mumbai" );
-        option1Obj.put("iscorrect", false );
-        option1Obj.put("priority", 0 );
-        optionsJsonArray.put(option1Obj);
-        JSONObject option2Obj = new JSONObject();
-        option2Obj.put("optionname", "Banglore" );
-        option2Obj.put("iscorrect", false );
-        option2Obj.put("priority", 0 );
-        optionsJsonArray.put(option2Obj);
-        JSONObject option3Obj = new JSONObject();
-        option3Obj.put("optionname", "Delhi" );
-        option3Obj.put("iscorrect", true );
-        option3Obj.put("priority", 100 );
-        optionsJsonArray.put(option3Obj);
-
-        singleQuestionJsonObj = new JSONObject();
-        singleQuestionJsonObj.put("Question", Question);
-        singleQuestionJsonObj.put("optionList", optionsJsonArray);
-        try {
-            singleQuestionJsonObj.put("startDate", DateUtilities.StringTimeToDate("30/05/2018 10:00", "dd/MM/yyyy hh:mm"));
-            singleQuestionJsonObj.put("endDate", DateUtilities.StringTimeToDate("30/05/2018 10:00", "dd/MM/yyyy hh:mm"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-
-
-
-
-
-        Log.e("JsonObjectTest", singleQuestionJsonObj.toString());
-
-
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("mockJson", singleQuestionJsonObj.toString());
-
-
-        try {
-            DateUtilities.StringTimeToDate("30/05/2018 10:20", "dd/MM/yyyy hh:mm");
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        SendMockData(params);*/
-
         String question = generalQuestionObj.getQuestion();
         ArrayList<GeneralQuestionOptionObj> optionList = generalQuestionObj.getOptionList();
 
@@ -241,20 +230,13 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             optionsJsonArray.put(option1Obj);
 
         }
-
-
-
-
-
         singleQuestionJsonObj = new JSONObject();
         singleQuestionJsonObj.put("Question", Question);
         singleQuestionJsonObj.put("optionList", optionsJsonArray);
-        try {
-            singleQuestionJsonObj.put("startDate", DateUtilities.StringTimeToDate(String.valueOf(generalQuestionObj.getStartDateStr()), "dd/MM/yyyy hh:mm"));
-            singleQuestionJsonObj.put("endDate", DateUtilities.StringTimeToDate(String.valueOf(generalQuestionObj.getEndDateStr()), "dd/MM/yyyy hh:mm"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+            singleQuestionJsonObj.put("startDate",generalQuestionObj.getStartDateStr());
+            singleQuestionJsonObj.put("endDate", generalQuestionObj.getEndDateStr());
+
 
         Log.e("questionList","question lis t is " + question + " " + optionList.size());
         HashMap<String, String> params = new HashMap<>();
@@ -318,20 +300,25 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     }
 
     @Override
-    public void optionTextComplete(GeneralQuestionOptionObj generalQuestionOptionObj) {
+    public void optionTextComplete(GeneralQuestionOptionObj generalQuestionOptionObj, float perRemaining) {
         Log.e("options", "Correctlt entered");
         AddOptionView addOption = new AddOptionView(generalQuestionOptionObj,container);
+        priorityPercentageRemaining(perRemaining);
+        resetAllOptionFields();
     }
 
     @Override
     public void priorityPercentageRemaining(float perRemaining) {
-        percentageRemainignTv.setText("Remaining "  +String.valueOf(100 - perRemaining));
+        percentageRemainignTv.setText(String.valueOf(100-perRemaining));
+        optionPriorityPercentageTv.setText(String.valueOf(perRemaining));
+
     }
 
     @Override
     public void priorityPercentageGreater(String reason, float perRemaining) {
         Snackbar.make(addBtn, reason, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+        priorityPercentageRemaining(perRemaining);
     }
 
     @Override
@@ -349,6 +336,18 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     public void questionNotCompleted(String reason) {
         Log.e("Question", reason);
         Snackbar.make(addBtn, reason, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
+
+    @Override
+    public void startTimeNotCorrect() {
+        Snackbar.make(addBtn, "Please set Start time", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
+
+    @Override
+    public void endTimeNotCorrect() {
+        Snackbar.make(addBtn, "Please set end time", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
 
