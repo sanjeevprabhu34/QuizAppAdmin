@@ -19,9 +19,10 @@ public class GeneralQuestionObj {
 
     public interface Interactor {
         public void optionTextNotComplete();
-        public void optionCorrectPriorityRemaining();
+        public void optionCorrectPriorityRemaining(String reason);
         public void optionTextComplete(GeneralQuestionOptionObj generalQuestionOptionObj);
         public void priorityPercentageRemaining(float perRemaining);
+        public void priorityPercentageGreater(String reason, float perRemaining);
         public void questionCompleted();
         public void questionNotCompleted(String reason);
 
@@ -69,12 +70,15 @@ public class GeneralQuestionObj {
               generalQuestionOptionObj.setOptionText(optionText);
               generalQuestionOptionObj.setOptionTheCorrectAnswer(isCorrect);
               generalQuestionOptionObj.setOptionPriorityInPercentage(priorityPer);
-            if((optionPercentage +priorityPer ) < 100) {
+              optionPercentage += priorityPer;
+            if((optionPercentage ) <= 100) {
                 optionList.add(generalQuestionOptionObj);
                 interactor.priorityPercentageRemaining(100 -optionPercentage );
             }else{
-                interactor.priorityPercentageRemaining((optionPercentage +priorityPer ) );
-                interactor.optionTextComplete(generalQuestionOptionObj);
+                //optionList.add(generalQuestionOptionObj);
+                //interactor.priorityPercentageRemaining((optionPercentage +priorityPer ) );
+                //interactor.optionTextComplete(generalQuestionOptionObj);
+                interactor.priorityPercentageGreater("priority percentage is greater than 100", optionPercentage);
             }
 
         } else if (!isCorrect) {
@@ -92,14 +96,21 @@ public class GeneralQuestionObj {
     }
 
     public void IsQuestionSetCompleted(){
-        /*if(question.length() < 10){
+        question = getQuestion();
+        if(question == null || question.length() <= 5){
             interactor.questionNotCompleted("Please Enter Question Correctly");
-        }  else if(optionPercentage >= 100){
-                 interactor.questionCompleted();
-         }else{
+
+        } else if(optionPercentage < 100){
+                 interactor.optionCorrectPriorityRemaining("Please fill atleast 3 options");
+         }else if(optionList.size() < 3){
+            interactor.optionTextNotComplete();
+        }else{
                  //interactor.questionNotCompleted("Question Priority Not Completed to 100%");
-                 interactor.optionCorrectPriorityRemaining();
-         }*/
+                 interactor.questionCompleted();
+                 setQuestion(question);
+                 setStartDateStr(startDateStr);
+                 setEndDateStr(endDateStr);
+         }
 
         interactor.questionCompleted();
    }

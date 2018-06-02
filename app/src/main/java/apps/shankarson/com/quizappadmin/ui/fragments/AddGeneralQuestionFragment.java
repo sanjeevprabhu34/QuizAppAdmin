@@ -87,11 +87,11 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     }
 
     private void init() throws JSONException {
-         questionEt = getActivity().findViewById(R.id.questionEt);
+        questionEt = getActivity().findViewById(R.id.questionEt);
         startTimeEt = getActivity().findViewById(R.id.startDateEt);
-         endTimeEt = getActivity().findViewById(R.id.endDateEt);
-         container = getActivity().findViewById(R.id.options_container);
-         optionText = getActivity().findViewById(R.id.optionTextEt);
+        endTimeEt = getActivity().findViewById(R.id.endDateEt);
+        container = getActivity().findViewById(R.id.options_container);
+        optionText = getActivity().findViewById(R.id.optionTextEt);
 
         percentageRemainignTv = getActivity().findViewById(R.id.optionPercentageRemaining);
         correctAnswerSwitch = getActivity().findViewById(R.id.optionSwitch);
@@ -100,22 +100,35 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 generalQuestionObj.IsQuestionSetCompleted();
             }
         });
 
         addBtn  = getActivity().findViewById(R.id.optionAddBtn);
+        generalQuestionObj = new GeneralQuestionObj(this);
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String optionTextStr = optionText.getText().toString();
                 boolean isCorrect = true;
                 float percentage  = 100;
-                long startTime = Long.parseLong(startTimeEt.getText().toString());
-                long endTime = Long.parseLong(endTimeEt.getText().toString());
+                long startTime = 0;
+                long endTime = 0;
+                try {
+                    startTime = DateUtilities.StringTimeToDate(startTimeEt.getText().toString(), "dd/mm/yyyy");
+                    endTime = DateUtilities.StringTimeToDate(startTimeEt.getText().toString(), "dd/mm/yyyy");
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
                 generalQuestionObj.setStartDateStr(startTime);
                 generalQuestionObj.setEndDateStr(endTime);
                 Log.e("editing", "start time is "  +generalQuestionObj.getStartDateStr());
+
+
+                generalQuestionObj.checkForOptionCompleted(optionTextStr, isCorrectOption, percentage, startTime, endTime);
             }
         });
 
@@ -137,14 +150,21 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             }
         });
 
-       //assembleSingleQuestionJsonObj(generalQuestionObj);
+        correctAnswerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isCorrectOption = isChecked;
+            }
+        });
+
+        //assembleSingleQuestionJsonObj(generalQuestionObj);
     }
 
     private void assembleSingleQuestionJsonObj(GeneralQuestionObj generalQuestionObj) throws JSONException {
         String Question = "What is the  Capital Of India";
         JSONArray optionsJsonArray = new JSONArray();
 
-       JSONObject option1Obj = new JSONObject();
+      /* JSONObject option1Obj = new JSONObject();
         option1Obj.put("optionname", "Mumbai" );
         option1Obj.put("iscorrect", false );
         option1Obj.put("priority", 0 );
@@ -171,6 +191,10 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         }
 
 
+
+
+
+
         Log.e("JsonObjectTest", singleQuestionJsonObj.toString());
 
 
@@ -186,7 +210,42 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             e.printStackTrace();
         }
 
+        SendMockData(params);*/
+
+        String question = generalQuestionObj.getQuestion();
+        ArrayList<GeneralQuestionOptionObj> optionList = generalQuestionObj.getOptionList();
+
+        for(int i=0;i<optionList.size();i++){
+            GeneralQuestionOptionObj generalQuestionObj1 = optionList.get(i);
+            Log.e("Options", i + " " +generalQuestionObj1.getOptionText() + " " +generalQuestionObj1.isOptionTheCorrectAnswer() + " " +generalQuestionObj1.getOptionPriorityInPercentage());
+            JSONObject option1Obj = new JSONObject();
+            option1Obj.put("optionname", generalQuestionObj1.getOptionText() );
+            option1Obj.put("iscorrect", generalQuestionObj1.isOptionTheCorrectAnswer() );
+            option1Obj.put("priority", generalQuestionObj1.getOptionPriorityInPercentage() );
+            optionsJsonArray.put(option1Obj);
+
+        }
+
+
+
+
+
+        singleQuestionJsonObj = new JSONObject();
+        singleQuestionJsonObj.put("Question", Question);
+        singleQuestionJsonObj.put("optionList", optionsJsonArray);
+        try {
+            singleQuestionJsonObj.put("startDate", DateUtilities.StringTimeToDate(String.valueOf(generalQuestionObj.getStartDateStr()), "dd/MM/yyyy hh:mm"));
+            singleQuestionJsonObj.put("endDate", DateUtilities.StringTimeToDate(String.valueOf(generalQuestionObj.getEndDateStr()), "dd/MM/yyyy hh:mm"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Log.e("questionList","question lis t is " + question + " " + optionList.size());
+        HashMap<String, String> params = new HashMap<>();
+        params.put("mockJson", singleQuestionJsonObj.toString());
         SendMockData(params);
+
+
 
     }
 
@@ -225,7 +284,7 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     }
 
     private void showData(){
-       // ViewUsersAdapter viewUsersAdapter = new ViewUsersAdapter()
+        // ViewUsersAdapter viewUsersAdapter = new ViewUsersAdapter()
         //RecyclerView rv = getActivity().findViewById(R.id.view_users_rv);
     }
 
@@ -237,9 +296,8 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     }
 
     @Override
-    public void optionCorrectPriorityRemaining() {
-        Log.e("Question","Question Priority Not Completed to 100%");
-        Snackbar.make(addBtn, "Question Priority Not Completed to 100%", Snackbar.LENGTH_LONG)
+    public void optionCorrectPriorityRemaining(String reason) {
+        Snackbar.make(addBtn, reason, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
 
@@ -252,6 +310,12 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     @Override
     public void priorityPercentageRemaining(float perRemaining) {
         percentageRemainignTv.setText("Remaining "  +String.valueOf(100 - perRemaining));
+    }
+
+    @Override
+    public void priorityPercentageGreater(String reason, float perRemaining) {
+        Snackbar.make(addBtn, reason, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 
     @Override
