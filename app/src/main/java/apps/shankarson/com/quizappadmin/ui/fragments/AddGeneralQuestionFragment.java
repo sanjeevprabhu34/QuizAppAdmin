@@ -1,5 +1,6 @@
 package apps.shankarson.com.quizappadmin.ui.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +48,7 @@ import apps.shankarson.com.quizappadmin.model.GeneralQuestionOptionObj;
 import apps.shankarson.com.quizappadmin.ui.StandaloneViews.AddOptionView;
 import apps.shankarson.com.quizappadmin.model.GeneralQuestionObj;
 import apps.shankarson.com.quizappadmin.model.User;
+import apps.shankarson.com.quizappadmin.ui.StandaloneViews.ProgressBar;
 import apps.shankarson.com.quizappadmin.ui.adapters.ViewUsersAdapter;
 
 public class AddGeneralQuestionFragment extends Fragment implements GeneralQuestionObj.Interactor {
@@ -55,13 +58,19 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     private EditText questionEt ;
     private EditText startTimeEt;
     private EditText endTimeEt ;
-    private ViewGroup container;
+    private ViewGroup optionsContainer;
     private EditText optionText;
     private boolean isCorrectOption = false;
     private SwitchCompat correctAnswerSwitch;
     private Button doneBtn;
     private FloatingActionButton addBtn;
     private JSONObject singleQuestionJsonObj;
+    private ProgressBar progressBarFactory;
+    private ProgressDialog progressDialog;
+    private Button startDateBtn, endDateBtn;
+    private int mYear, mMonth, mDay, mHour, mMinute;
+    private android.app.DatePickerDialog datePickerDialog;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_add_general_question, container, false);
@@ -91,13 +100,17 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         questionEt = getActivity().findViewById(R.id.questionEt);
         startTimeEt = getActivity().findViewById(R.id.startDateEt);
         endTimeEt = getActivity().findViewById(R.id.endDateEt);
-        container = getActivity().findViewById(R.id.options_container);
+        optionsContainer = getActivity().findViewById(R.id.options_container);
         optionText = getActivity().findViewById(R.id.optionTextEt);
+        startDateBtn = getActivity().findViewById(R.id.startDateBtn);
+        endDateBtn = getActivity().findViewById(R.id.endDateBtn);
 
         percentageRemainignTv = getActivity().findViewById(R.id.optionPercentageRemaining);
         optionPriorityPercentageTv = getActivity().findViewById(R.id.optionPriority);
         correctAnswerSwitch = getActivity().findViewById(R.id.optionSwitch);
         doneBtn = getActivity().findViewById(R.id.done_btn);
+        progressBarFactory = ProgressBar.getInstance();
+
 
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,8 +219,81 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             }
         });
 
+        setDateDialog(startDateBtn);
+        setDateDialog(endDateBtn);
+
         //assembleSingleQuestionJsonObj(generalQuestionObj);
     }
+
+    private void setDateDialog(final Button targetBtn){
+        final java.util.Calendar c = java.util.Calendar.getInstance();
+            mYear = c.get(java.util.Calendar.YEAR);
+            mMonth = c.get(java.util.Calendar.MONTH);
+            mDay = c.get(java.util.Calendar.DAY_OF_MONTH);
+
+            targetBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(datePickerDialog != null){
+                        datePickerDialog.cancel();
+                    }
+
+                    datePickerDialog = new android.app.DatePickerDialog(getActivity(),
+                            new android.app.DatePickerDialog.OnDateSetListener() {
+
+                                @Override
+                                public void onDateSet(android.widget.DatePicker view, int year,
+                                                      int monthOfYear, int dayOfMonth) {
+
+                                    datePickerDialog.cancel();
+                                    String dateStr = dayOfMonth + "-" + (monthOfYear + 1) + "-" + year;
+
+
+                                    if(targetBtn == startDateBtn){
+                                        try {
+                                            generalQuestionObj.setStartDateStr(DateUtilities.StringTimeToDate(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year + "00:00",  "dd/mm/yyyy"));
+
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }else if(targetBtn == endDateBtn){
+                                        try {
+                                            generalQuestionObj.setEndDateStr(DateUtilities.StringTimeToDate(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year + "00:00",  "dd/mm/yyyy"));
+
+                                        }catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
+
+
+
+                                }
+                            }, mYear, mMonth, mDay);
+                    datePickerDialog.show();
+                }
+            });
+
+    }
+
+    /*private void setTimeDialog(Button targetBtn){
+        final java.util.Calendar c = java.util.Calendar.getInstance();
+            mHour = c.get(java.util.Calendar.HOUR_OF_DAY);
+            mMinute = c.get(java.util.Calendar.MINUTE);
+
+            // Launch Time Picker Dialog
+            android.app.TimePickerDialog timePickerDialog = new android.app.TimePickerDialog(getActivity(),
+                    new android.app.TimePickerDialog.OnTimeSetListener() {
+
+                        @Override
+                        public void onTimeSet(TimePicker view, int hourOfDay,
+                                              int minute) {
+
+                            endTimeEt.setText(hourOfDay + ":" + minute);
+                        }
+                    }, mHour, mMinute, false);
+            timePickerDialog.show();
+    }*/
 
     private void resetAllOptionFields(){
         optionText.setText(null);
@@ -241,6 +327,11 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         Log.e("questionList","question lis t is " + question + " " + optionList.size());
         HashMap<String, String> params = new HashMap<>();
         params.put("mockJson", singleQuestionJsonObj.toString());
+
+       // progressDialog = progressBarFactory.createNewProgressDialog(getActivity());
+
+        //progressDialog.show();
+
         SendMockData(params);
 
 
@@ -261,7 +352,8 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
             public void onResponse(String response) {
 
                 // Toast.makeText(getApplicationContext(),"Response :" + response.toString(), Toast.LENGTH_LONG).show();
-                Log.e("message", ""+response.toString());
+               // Log.e("message", ""+response.toString());
+                singleQuestionSetCompletedSuccessfully(response);
 
             }
         }, new Response.ErrorListener() {
@@ -279,6 +371,21 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
         };
 
         mRequestQueue.add(mStringRequest);
+    }
+
+    private void singleQuestionSetCompletedSuccessfully(String serverResponse){
+        //progressDialog.cancel();
+        resetAllToSart();
+    }
+
+    private void resetAllToSart(){
+        questionEt.setText(null);
+        optionText.setText(null);
+        correctAnswerSwitch.setChecked(false);
+        optionsContainer.removeAllViews();
+        optionPriorityPercentageTv.setText("");
+        percentageRemainignTv.setText(String.valueOf(100));
+        
     }
 
     private void showData(){
@@ -302,7 +409,7 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     @Override
     public void optionTextComplete(GeneralQuestionOptionObj generalQuestionOptionObj, float perRemaining) {
         Log.e("options", "Correctlt entered");
-        AddOptionView addOption = new AddOptionView(generalQuestionOptionObj,container);
+        AddOptionView addOption = new AddOptionView(generalQuestionOptionObj,optionsContainer);
         priorityPercentageRemaining(perRemaining);
         resetAllOptionFields();
     }
@@ -349,6 +456,16 @@ public class AddGeneralQuestionFragment extends Fragment implements GeneralQuest
     public void endTimeNotCorrect() {
         Snackbar.make(addBtn, "Please set end time", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+    }
+
+    @Override
+    public void startDateSet(long timeinMilliseconds) {
+        startTimeEt.setText(DateUtilities.UTCMilliseondsToDate(timeinMilliseconds));
+    }
+
+    @Override
+    public void endDateSet(long timeinMilliseconds) {
+        endTimeEt.setText(DateUtilities.UTCMilliseondsToDate(timeinMilliseconds));
     }
 
 

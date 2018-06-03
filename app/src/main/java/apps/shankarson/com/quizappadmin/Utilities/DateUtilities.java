@@ -34,4 +34,11 @@ public class DateUtilities {
         Log.e("milli", String.valueOf(myDate.getTime()));
         return myDate.getTime();
     }
+
+    public static String UTCMilliseondsToDate(long dateInMillis){
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/mm/yyyy hh:mm");
+        String dateString = formatter.format(new Date(dateInMillis));
+        return dateString;
+
+    }
 }

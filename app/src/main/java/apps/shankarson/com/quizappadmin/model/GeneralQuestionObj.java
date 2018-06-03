@@ -27,6 +27,8 @@ public class GeneralQuestionObj {
         public void questionNotCompleted(String reason);
         public void startTimeNotCorrect();
         public void endTimeNotCorrect();
+        public void startDateSet(long timeinMilliseconds);
+        public void endDateSet(long timeinMilliseconds);
 
     }
 
@@ -53,6 +55,7 @@ public class GeneralQuestionObj {
 
     public void setStartDateStr(long startDateStr) {
         this.startDateStr = startDateStr;
+        interactor.startDateSet(startDateStr);
     }
 
     public long getEndDateStr() {
@@ -61,6 +64,7 @@ public class GeneralQuestionObj {
 
     public void setEndDateStr(long endDateStr) {
         this.endDateStr = endDateStr;
+        interactor.endDateSet(endDateStr);
     }
 
     public void checkForOptionCompleted(String optionText, boolean isCorrect,  float priorityPer ){
